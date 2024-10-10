@@ -32,7 +32,7 @@ fn main() {
                         trip_id: tu.trip.trip_id(),
                         route: tu.trip.route_id(),
                         stop_id: stu.stop_id(),
-                        time: stu.departure.map(|d| d.time()).unwrap_or_default(),
+                        time: stu.departure.unwrap().time(),
                     })
             })
         })
