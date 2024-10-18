@@ -4,6 +4,7 @@ use std::{
     time::{Instant, SystemTime, UNIX_EPOCH},
 };
 
+use chrono::{DateTime, Local};
 use reqwest::blocking;
 
 fn main() {
@@ -33,6 +34,11 @@ fn main() {
                         route: tu.trip.route_id(),
                         stop_id: stu.stop_id(),
                         time: stu.departure.unwrap().time(),
+                        date: DateTime::from_timestamp(stu.departure.unwrap().time(), 0)
+                            .unwrap()
+                            .with_timezone(&Local)
+                            .date_naive()
+                            .to_string(),
                     })
             })
         })
@@ -43,8 +49,8 @@ fn main() {
     let mut insert = db
         .prepare(
             "INSERT OR REPLACE INTO 
-                departure (trip_id, time, route_id, stop_id) 
-                VALUES (:1, :2, :3, :4)",
+                departure (trip_id, time, route_id, stop_id, date) 
+                VALUES (:1, :2, :3, :4, :5)",
         )
         .unwrap();
 
@@ -56,6 +62,7 @@ fn main() {
                 departure.time,
                 departure.route,
                 departure.stop_id,
+                departure.date,
             ))
             .unwrap();
     }
@@ -72,4 +79,5 @@ struct PastDeparture<'a> {
     time: i64,
     route: &'a str,
     stop_id: &'a str,
+    date: String,
 }
